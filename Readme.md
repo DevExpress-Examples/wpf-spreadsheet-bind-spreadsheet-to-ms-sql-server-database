@@ -1,3 +1,9 @@
+<!-- default file list -->
+*Files to look at*:
+
+* [MainWindow.xaml](./CS/WpfSpreadsheet_BindToDataSource/MainWindow.xaml) (VB: [MainWindow.xaml](./VB/WpfSpreadsheet_BindToDataSource/MainWindow.xaml))
+* [MainWindow.xaml.cs](./CS/WpfSpreadsheet_BindToDataSource/MainWindow.xaml.cs) (VB: [MainWindow.xaml](./VB/WpfSpreadsheet_BindToDataSource/MainWindow.xaml))
+<!-- default file list end -->
 # How to bind a spreadsheet to an MS SQL Server database (WPF Spreadsheet)
 
 
