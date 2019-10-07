@@ -1,5 +1,6 @@
 ﻿#Region "#Namespaces"
 Imports DevExpress.Spreadsheet
+Imports NWindDataSetTableAdapters
 Imports System
 Imports System.Windows
 Imports WpfSpreadsheet_BindToDataSource.NWindDataSetTableAdapters
@@ -14,7 +15,7 @@ Namespace WpfSpreadsheet_BindToDataSource
         Inherits DevExpress.Xpf.Ribbon.DXRibbonWindow
 
         Private applyChangesOnRowsRemoved As Boolean = False
-        #Region "#BindToData"
+#Region "#BindToData"
         Private dataSet As NWindDataSet
         Private adapter As SuppliersTableAdapter
         Public Sub New()
@@ -35,9 +36,9 @@ Namespace WpfSpreadsheet_BindToDataSource
             ' Load data from the "Suppliers" data table into the worksheet starting from the cell "B12".
             sheet.DataBindings.BindToDataSource(dataSet.Suppliers, 11, 1)
         End Sub
-        #End Region ' #BindToData
+#End Region ' #BindToData
 
-        #Region "#UpdateData"
+#Region "#UpdateData"
         Private Sub spreadsheetControl_PreviewMouseLeftButtonDown(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
             Dim winPoint As Point = e.GetPosition(spreadsheetControl)
             Dim point As New System.Drawing.Point(CInt((winPoint.X)), CInt((winPoint.Y)))
@@ -53,8 +54,8 @@ Namespace WpfSpreadsheet_BindToDataSource
                 AddRow(sheet)
                 HideDataEntryForm(sheet)
                 ApplyChanges()
-            ' If the "Cancel" cell is clicked in the data entry form, 
-            ' cancel adding new data and hide the data entry form.
+                ' If the "Cancel" cell is clicked in the data entry form, 
+                ' cancel adding new data and hide the data entry form.
             ElseIf cellReference = "I6" Then
                 HideDataEntryForm(sheet)
             End If
@@ -71,7 +72,7 @@ Namespace WpfSpreadsheet_BindToDataSource
         End Sub
 
         Private Sub HideDataEntryForm(ByVal sheet As Worksheet)
-            Dim range As Range = sheet.Range.Parse("C4,C6,C8,E4,E6,E8,G4,G6")
+            Dim range As CellRange = sheet.Range.Parse("C4,C6,C8,E4,E6,E8,G4,G6")
             range.ClearContents()
             sheet.Rows.Hide(2, 9)
         End Sub
@@ -88,8 +89,8 @@ Namespace WpfSpreadsheet_BindToDataSource
 
         Private Sub spreadsheetControl_RowsRemoving(ByVal sender As Object, ByVal e As RowsChangingEventArgs)
             Dim sheet As Worksheet = spreadsheetControl.ActiveWorksheet
-            Dim rowRange As Range = sheet.Range.FromLTRB(0, e.StartIndex, 16383, e.StartIndex + e.Count - 1)
-            Dim boundRange As Range = sheet.DataBindings(0).Range
+            Dim rowRange As CellRange = sheet.Range.FromLTRB(0, e.StartIndex, 16383, e.StartIndex + e.Count - 1)
+            Dim boundRange As CellRange = sheet.DataBindings(0).Range
             ' If the rows to be removed belong to the data-bound range,
             ' display a dialog requesting the user to confirm the deletion of records. 
             If boundRange.IsIntersecting(rowRange) Then
@@ -119,8 +120,8 @@ Namespace WpfSpreadsheet_BindToDataSource
         Private Sub buttonRemoveRecord_ItemClick(ByVal sender As Object, ByVal e As DevExpress.Xpf.Bars.ItemClickEventArgs)
             CloseInplaceEditor()
             Dim sheet As Worksheet = spreadsheetControl.ActiveWorksheet
-            Dim selectedRange As Range = spreadsheetControl.Selection
-            Dim boundRange As Range = sheet.DataBindings(0).Range
+            Dim selectedRange As CellRange = spreadsheetControl.Selection
+            Dim boundRange As CellRange = sheet.DataBindings(0).Range
             ' Verify that the selected cell range belongs to the data-bound range.
             If (Not boundRange.IsIntersecting(selectedRange)) OrElse selectedRange.TopRowIndex < boundRange.TopRowIndex Then
                 MessageBox.Show("Select a record first!", "Remove Record", MessageBoxButton.OK, MessageBoxImage.Error)
@@ -148,6 +149,6 @@ Namespace WpfSpreadsheet_BindToDataSource
                 spreadsheetControl.CloseCellEditor(DevExpress.XtraSpreadsheet.CellEditorEnterValueMode.Default)
             End If
         End Sub
-        #End Region ' #UpdateData
+#End Region ' #UpdateData
     End Class
 End Namespace
