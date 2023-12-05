@@ -1,24 +1,28 @@
-﻿#Region "#Namespaces"
+#Region "#Namespaces"
 Imports DevExpress.Spreadsheet
 Imports System
 Imports System.Windows
 Imports WpfSpreadsheet_BindToDataSource.NWindDataSetTableAdapters
-' ...
-#End Region ' #Namespaces
 
+' ...
+#End Region  ' #Namespaces
 Namespace WpfSpreadsheet_BindToDataSource
+
     ''' <summary>
     ''' Interaction logic for MainWindow.xaml
     ''' </summary>
-    Partial Public Class MainWindow
+    Public Partial Class MainWindow
         Inherits DevExpress.Xpf.Ribbon.DXRibbonWindow
 
         Private applyChangesOnRowsRemoved As Boolean = False
-        #Region "#BindToData"
+
+#Region "#BindToData"
         Private dataSet As NWindDataSet
+
         Private adapter As SuppliersTableAdapter
+
         Public Sub New()
-            InitializeComponent()
+            Me.InitializeComponent()
             BindWorksheetToDataSource()
         End Sub
 
@@ -27,35 +31,32 @@ Namespace WpfSpreadsheet_BindToDataSource
             adapter = New SuppliersTableAdapter()
             ' Populate the "Suppliers" data table with data.
             adapter.Fill(dataSet.Suppliers)
-
-            Dim workbook As IWorkbook = spreadsheetControl.Document
+            Dim workbook As IWorkbook = Me.spreadsheetControl.Document
             ' Load the template document into the SpreadsheetControl.
             workbook.LoadDocument("Documents\Suppliers_template.xlsx", DocumentFormat.Xlsx)
             Dim sheet As Worksheet = workbook.Worksheets(0)
             ' Load data from the "Suppliers" data table into the worksheet starting from the cell "B12".
             sheet.DataBindings.BindToDataSource(dataSet.Suppliers, 11, 1)
         End Sub
-        #End Region ' #BindToData
 
-        #Region "#UpdateData"
-        Private Sub spreadsheetControl_PreviewMouseLeftButtonDown(ByVal sender As Object, ByVal e As System.Windows.Input.MouseButtonEventArgs)
-            Dim winPoint As Point = e.GetPosition(spreadsheetControl)
-            Dim point As New System.Drawing.Point(CInt((winPoint.X)), CInt((winPoint.Y)))
-            Dim cell As Cell = spreadsheetControl.GetCellFromPoint(point)
-            If cell Is Nothing Then
-                Return
-            End If
-            Dim sheet As Worksheet = spreadsheetControl.ActiveWorksheet
+#End Region  ' #BindToData
+#Region "#UpdateData"
+        Private Sub spreadsheetControl_PreviewMouseLeftButtonDown(ByVal sender As Object, ByVal e As Input.MouseButtonEventArgs)
+            Dim winPoint As Point = e.GetPosition(Me.spreadsheetControl)
+            Dim point As System.Drawing.Point = New System.Drawing.Point(CInt(winPoint.X), CInt(winPoint.Y))
+            Dim cell As Cell = Me.spreadsheetControl.GetCellFromPoint(point)
+            If cell Is Nothing Then Return
+            Dim sheet As Worksheet = Me.spreadsheetControl.ActiveWorksheet
             Dim cellReference As String = cell.GetReferenceA1()
             ' If the "Save" cell is clicked in the data entry form, 
             ' add a row containing the entered values to the database table.
-            If cellReference = "I4" Then
+            If Equals(cellReference, "I4") Then
                 AddRow(sheet)
                 HideDataEntryForm(sheet)
                 ApplyChanges()
             ' If the "Cancel" cell is clicked in the data entry form, 
             ' cancel adding new data and hide the data entry form.
-            ElseIf cellReference = "I6" Then
+            ElseIf Equals(cellReference, "I6") Then
                 HideDataEntryForm(sheet)
             End If
         End Sub
@@ -65,7 +66,7 @@ Namespace WpfSpreadsheet_BindToDataSource
                 ' Append a new row to the "Suppliers" data table.
                 dataSet.Suppliers.AddSuppliersRow(sheet("C4").Value.TextValue, sheet("C6").Value.TextValue, sheet("C8").Value.TextValue, sheet("E4").Value.TextValue, sheet("E6").Value.TextValue, sheet("E8").Value.TextValue, sheet.Cells("G4").DisplayText, sheet.Cells("G6").DisplayText)
             Catch ex As Exception
-                Dim message As String = String.Format("Cannot add a row to a database table." & ControlChars.Lf & "{0}", ex.Message)
+                Dim message As String = String.Format("Cannot add a row to a database table." & Microsoft.VisualBasic.Constants.vbLf & "{0}", ex.Message)
                 MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error)
             End Try
         End Sub
@@ -81,13 +82,13 @@ Namespace WpfSpreadsheet_BindToDataSource
                 ' Send the updated data back to the database.
                 adapter.Update(dataSet.Suppliers)
             Catch ex As Exception
-                Dim message As String = String.Format("Cannot update data in a database table." & ControlChars.Lf & "{0}", ex.Message)
+                Dim message As String = String.Format("Cannot update data in a database table." & Microsoft.VisualBasic.Constants.vbLf & "{0}", ex.Message)
                 MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error)
             End Try
         End Sub
 
         Private Sub spreadsheetControl_RowsRemoving(ByVal sender As Object, ByVal e As RowsChangingEventArgs)
-            Dim sheet As Worksheet = spreadsheetControl.ActiveWorksheet
+            Dim sheet As Worksheet = Me.spreadsheetControl.ActiveWorksheet
             Dim rowRange As Range = sheet.Range.FromLTRB(0, e.StartIndex, 16383, e.StartIndex + e.Count - 1)
             Dim boundRange As Range = sheet.DataBindings(0).Range
             ' If the rows to be removed belong to the data-bound range,
@@ -99,6 +100,7 @@ Namespace WpfSpreadsheet_BindToDataSource
                 Return
             End If
         End Sub
+
         Private Sub spreadsheetControl_RowsRemoved(ByVal sender As Object, ByVal e As RowsChangedEventArgs)
             If applyChangesOnRowsRemoved Then
                 applyChangesOnRowsRemoved = False
@@ -106,26 +108,26 @@ Namespace WpfSpreadsheet_BindToDataSource
                 ApplyChanges()
             End If
         End Sub
+
         Private Sub buttonAddRecord_ItemClick(ByVal sender As Object, ByVal e As DevExpress.Xpf.Bars.ItemClickEventArgs)
             CloseInplaceEditor()
-            Dim sheet As Worksheet = spreadsheetControl.ActiveWorksheet
+            Dim sheet As Worksheet = Me.spreadsheetControl.ActiveWorksheet
             ' Display the data entry form on the worksheet to add a new record to the "Suppliers" data table.
-            If Not sheet.Rows(4).Visible Then
-                sheet.Rows.Unhide(2, 9)
-            End If
-            spreadsheetControl.SelectedCell = sheet("C4")
+            If Not sheet.Rows(4).Visible Then sheet.Rows.Unhide(2, 9)
+            Me.spreadsheetControl.SelectedCell = sheet("C4")
         End Sub
 
         Private Sub buttonRemoveRecord_ItemClick(ByVal sender As Object, ByVal e As DevExpress.Xpf.Bars.ItemClickEventArgs)
             CloseInplaceEditor()
-            Dim sheet As Worksheet = spreadsheetControl.ActiveWorksheet
-            Dim selectedRange As Range = spreadsheetControl.Selection
+            Dim sheet As Worksheet = Me.spreadsheetControl.ActiveWorksheet
+            Dim selectedRange As Range = Me.spreadsheetControl.Selection
             Dim boundRange As Range = sheet.DataBindings(0).Range
             ' Verify that the selected cell range belongs to the data-bound range.
-            If (Not boundRange.IsIntersecting(selectedRange)) OrElse selectedRange.TopRowIndex < boundRange.TopRowIndex Then
+            If Not boundRange.IsIntersecting(selectedRange) OrElse selectedRange.TopRowIndex < boundRange.TopRowIndex Then
                 MessageBox.Show("Select a record first!", "Remove Record", MessageBoxButton.OK, MessageBoxImage.Error)
                 Return
             End If
+
             ' Remove the topmost row of the selected cell range.
             sheet.Rows.Remove(selectedRange.TopRowIndex)
         End Sub
@@ -144,10 +146,8 @@ Namespace WpfSpreadsheet_BindToDataSource
         End Sub
 
         Private Sub CloseInplaceEditor()
-            If spreadsheetControl.IsCellEditorActive Then
-                spreadsheetControl.CloseCellEditor(DevExpress.XtraSpreadsheet.CellEditorEnterValueMode.Default)
-            End If
+            If Me.spreadsheetControl.IsCellEditorActive Then Me.spreadsheetControl.CloseCellEditor(DevExpress.XtraSpreadsheet.CellEditorEnterValueMode.Default)
         End Sub
-        #End Region ' #UpdateData
+#End Region  ' #UpdateData
     End Class
 End Namespace
